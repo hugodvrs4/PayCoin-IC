@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayCoin IC - Receive Payment</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #121212, #1f1f1f);
+            font-family: 'Poppins', sans-serif;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: linear-gradient(135deg, #1e1e1e, #292929);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.8);
+            text-align: center;
+            animation: fadeIn 0.8s ease;
+            width: 90%;
+            max-width: 360px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #00ff96;
+            margin-bottom: 15px;
+        }
+
+        input, textarea, button {
+            width: 100%;
+            margin: 8px 0;
+            padding: 10px;
+            border-radius: 6px;
+            border: none;
+            font-size: 0.9rem;
+            outline: none;
+            transition: 0.3s ease;
+        }
+
+        input, textarea {
+            background: #2a2a2a;
+            color: #fff;
+            border: 1px solid #444;
+        }
+
+        input:focus, textarea:focus {
+            border: 1px solid #00ff96;
+        }
+
+        textarea {
+            resize: none;
+            height: 80px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #00ff96, #00cc77);
+            color: #000;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            background: linear-gradient(135deg, #00cc77, #00ff96);
+        }
+
+        #qr-code-container {
+            margin-top: 15px;
+        }
+
+        #qr-code-image {
+            width: 180px; /* Taille légèrement réduite */
+            height: 180px; /* Taille légèrement réduite */
+            margin: 0 auto;
+            border: 2px solid #00ff96;
+            border-radius: 10px;
+            display: none; /* Par défaut caché */
+        }
+
+        a {
+            display: none;
+            margin-top: 8px;
+            text-decoration: none;
+            color: #000;
+            background: linear-gradient(135deg, #00ff96, #00cc77);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        a:hover {
+            transform: scale(1.05);
+        }
+
+        .error {
+            color: #ff4d4d;
+            margin-top: 8px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Receive Payment</h1>
+        <div id="request-form">
+            <input type="text" id="recipient-address" placeholder="Recipient Address" />
+            <input type="number" id="amount" placeholder="Amount (RLUSD)" />
+            <textarea id="optional-message" placeholder="Message (Optional)"></textarea>
+            <button onclick="generateQRCode()">Generate QR Code</button>
+        </div>
+        <div id="qr-code-container">
+            <img id="qr-code-image" src="" alt="QR Code" />
+            <a id="download-link" download="qr_code.png">Download QR Code</a>
+        </div>
+        <p id="error-message" class="error"></p>
+    </div>
+    <script>
+        async function generateQRCode() {
+            const recipientAddress = document.getElementById('recipient-address').value.trim();
+            const amount = document.getElementById('amount').value.trim();
+            const optionalMessage = document.getElementById('optional-message').value.trim();
+            const errorMessage = document.getElementById('error-message');
+            const qrCodeImage = document.getElementById('qr-code-image');
+            const downloadLink = document.getElementById('download-link');
+
+            errorMessage.style.display = 'none';
+            qrCodeImage.style.display = 'none';
+            downloadLink.style.display = 'none';
+
+            if (!recipientAddress || !amount) {
+                errorMessage.textContent = "Please fill in all required fields.";
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            if (!recipientAddress.startsWith('r') || recipientAddress.length < 25) {
+                errorMessage.textContent = "Addresse RLUSD incorrecte.";
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/generate_qr_code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        recipient_address: recipientAddress,
+                        amount: amount,
+                        message: optionalMessage || "",
+                    }),
+                });
+
+                if (response.ok) {
+                    const qrCodeBlob = await response.blob();
+                    const qrCodeUrl = URL.createObjectURL(qrCodeBlob);
+                    qrCodeImage.src = qrCodeUrl;
+                    qrCodeImage.style.display = 'block';
+                    downloadLink.href = qrCodeUrl;
+                    downloadLink.style.display = 'block';
+                } else {
+                    errorMessage.textContent = "Failed to generate QR Code.";
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                errorMessage.textContent = "Server error. Try again later.";
+                errorMessage.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

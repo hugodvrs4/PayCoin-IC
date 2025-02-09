@@ -1,0 +1,11 @@
+import base64
+from PIL import Image
+import io
+
+qr_code_base64 = "iVBORw0KGgoAAAANSUhEUgAAAXIAAAFyAQAAAADAX2ykAAACyUlEQVR4nO2bbYrjMAyGZSWwP1PYA/QonhvskfZqyVF6gIXk50DKu0h20jYLtgs7HafRCxMy0cMgMLI+7HGgZzTwUziR8Wlxxr6V8Wlxxr6V8Wlxxr6V8Wlxxr6V8UfgXVRL7mOSl5N8O9Hyq+jjhf6Ui59gD8x7iEapoE4N0E9t+I6eGjWhbv+LxQflpxihwHiVt6vTz/pNA/vF/pSKi8lj8u2/n5rZhcfkCDS91h82/kt5J1mX/KiRTP//7+fEWeJRxpfxHYBeXjxmScKSic9A3LPl2yNfKja+Bn7QEllWlaS0kvh1vy+6eV9D+fxaf4rF5eiB8y8eP4IoBiy2ttr8Z+PTQmx+pCuiJiympl5gbO73bG2h+tr8Z+NL62fnEbuiRVcHqaRpcA1cnf6z8WX11Uzopx+I9dV5Dq2v6vZWr/+l4kPuz9ANue9kp5ZH7I+a8OudbH/eaf7tYhKOCzouBi9NsOXfnfPApZX4lU16GU3qzDJY13F0rf6Xiw/Gt/p08aednb+05KibWxrWtDv8gpor9J+NTwshry7HRCEJe2mNEPqjRmou+Wb78xv0v9BNOixtp5lYc7Ll373HL8UxsxZUWmn55ZBhGXLY+u46fikoxOp6oEDL+b6t7355hNBdGyIKkw7E+aQifcX+l4sPWz8TBrfOIrvPeH+DtF3q/rSo0382vix+EUeTHnFp40mh7t6TXLy748vFxtcSvyRnCaDpJJEs4XyWJDz9nMn3K1Kb/2x8WrgVT9oLxSSsb/MSv9oTW321Q57ux8zLga+WW3e3cmz+/D68l6s5elNnOD1eff4efzLiHLDR0XnnznrIEP91gVR63e57/MmJs8Sxedrm3zDfuJ0KjusRse3P73B/0i+LfBttqKw/eov7k4gPHVc2uNlsvlEkLsNWGZ8WZ+xbGZ8WZ+xbGZ8WZ+xbGZ8WZ+zvxv8FNZLE8EE0gJ4AAAAASUVORK5CYII="  # Remplacez par votre chaîne base64
+
+img_bytes = base64.b64decode(qr_code_base64)
+img = Image.open(io.BytesIO(img_bytes))
+img.show()  # Affiche l'image
+# Ou enregistrez-la:
+# img.save("qr_code.png")

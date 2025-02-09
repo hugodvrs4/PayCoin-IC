@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayCoin IC - Send Payment</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@zxing/library@latest"></script>
+    <style>
+        /* Styles */
+        body {
+            background: linear-gradient(135deg, #121212, #1f1f1f);
+            font-family: 'Poppins', sans-serif;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: linear-gradient(135deg, #1e1e1e, #292929);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.8);
+            text-align: center;
+            animation: fadeIn 0.8s ease;
+            width: 100%;
+            max-width: 400px;
+        }
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #00ff96;
+            margin-bottom: 20px;
+        }
+        video {
+            margin-top: 20px;
+            max-width: 100%;
+            border: 2px solid #00ff96;
+            border-radius: 10px;
+        }
+        button {
+            margin: 20px auto 0;
+            padding: 15px 20px;
+            border-radius: 10px;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: black;
+            background: linear-gradient(135deg, #00ff96, #00cc77);
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+        button:hover {
+            transform: scale(1.05);
+            background: linear-gradient(135deg, #00cc77, #00ff96);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Send Payment</h1>
+        <video id="camera" autoplay></video>
+        <p id="output">Click "Start Scan" to scan a QR code.</p>
+        <button onclick="startScan()">Start Scan</button>
+    </div>
+
+    <script>
+        async function startScan() {
+            const video = document.getElementById('camera');
+            const output = document.getElementById('output');
+
+            try {
+                // Initialiser le scanner ZXing
+                const codeReader = new ZXing.BrowserQRCodeReader();
+
+                // Afficher les caméras disponibles
+                const devices = await codeReader.listVideoInputDevices();
+                if (devices.length === 0) {
+                    throw new Error("No cameras found.");
+                }
+
+                // Sélectionner la caméra arrière (si disponible)
+                const deviceId = devices[devices.length - 1].deviceId;
+
+                output.innerText = "Scanning QR code...";
+
+                // Décoder depuis la caméra
+                codeReader.decodeFromVideoDevice(deviceId, video, (result, err) => {
+                    if (result) {
+                        console.log("QR Code detected:", result.text);
+                        output.innerText = "QR Code detected: " + result.text;
+
+                        // Sauvegarder les données et rediriger
+                        localStorage.setItem('scannedData', result.text);
+                        window.location.href = 'data.html';
+                        
+                        // Arrêter le scanner
+                        codeReader.reset();
+                    } else if (err) {
+                        console.error("Decoding error:", err);
+                    }
+                });
+            } catch (error) {
+                console.error("Error:", error);
+                output.innerText = "Failed to access the camera. Please check your permissions.";
+            }
+        }
+    </script>
+</body>
+</html>
